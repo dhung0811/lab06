@@ -21,7 +21,7 @@ namespace lab06
         {
             InitializeComponent();
             g = panel1.CreateGraphics();
-            client = new TcpClient("127.0.0.1", 5000);
+            client = new TcpClient("127.0.0.1", 57531);
             stream = client.GetStream();
 
             Thread receiveThread = new Thread(ReceiveData);
@@ -116,16 +116,31 @@ namespace lab06
 
         private void btnInsertImage_Click(object sender, EventArgs e)
         {
-            string imageUrl = txtImageUrl.Text;
-            try
+            int size = -1;
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            DialogResult result = openFileDialog1.ShowDialog(); // Show the dialog.
+            if (result == DialogResult.OK) // Test result.
             {
-                Image image = Image.FromStream(new MemoryStream(new System.Net.WebClient().DownloadData(imageUrl)));
-                g.DrawImage(image, new Point(0, 0)); 
-                SendImageData(image);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Failed to load image: " + ex.Message);
+                string file = openFileDialog1.FileName;
+                try
+                {
+                    string text = File.ReadAllText(file);
+                    size = text.Length;
+                }
+                catch (IOException)
+                {
+                }
+                string imageUrl = txtImageUrl.Text;
+                try
+                {
+                    Image image = Image.FromFile(file);
+                    g.DrawImage(image, new Point(0, 0));
+                    SendImageData(image);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Failed to load image: " + ex.Message);
+                }
             }
         }
 
